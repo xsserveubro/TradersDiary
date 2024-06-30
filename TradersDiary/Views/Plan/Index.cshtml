@@ -1,0 +1,64 @@
+﻿<div class="bth-group" role="group" style="margin:10px" aria-label="Basic example">
+    <button type="button" class="btn btn-secondary">Вставить картинку</button>
+    <button type="button" class="btn btn-secondary">Увеличить шрифт</button>
+    <button type="button" class="btn btn-secondary">Уменьшить шрифт</button>
+    <button type="button" class="btn btn-secondary">Заголовок 1</button>
+    <button type="button" class="btn btn-secondary">Заголовок 2</button>
+    <button type="button" class="btn btn-secondary">Заголовок 3</button>
+    <button type="button" class="btn btn-secondary">Жирный</button>
+    <button type="button" class="btn btn-secondary">Курсив</button>
+</div>
+
+<div id="EditorArea" class="border" style="height:100vw; overflow-y:scroll; padding:10px" contenteditable="true">
+    @ViewData["contenteditable"]
+</div>
+
+@section Scripts {
+    <script>
+        if (window.jQuery) {
+            console.log('jQuery is correct');
+        }
+
+        window.onload = function () {
+            inactivityTime();
+        };
+
+        let editor = document.getElementById("EditorArea");
+
+        var inactivityTime = function () {
+            var time;
+            window.onload = resetTimer;
+
+            editor.onmouseover = resetTimer;
+            editor.onkeydown = resetTimer;
+
+            function parseElements() {
+                console.log("elements parsing");
+                setIdNewElements();
+                let items = [].slice.call(document.getElementById('EditorArea').children);
+                let json = JSON.stringify(items);
+
+                console.log(json);
+            };
+
+            function resetTimer() {
+                clearTimeout(time);
+                time = setTimeout(parseElements, 3000)
+            };
+        };
+
+        function setIdNewElements() {
+            let items = [].slice.call(document.getElementById('EditorArea').children);
+            items.forEach((item) => {
+                if (!item.id) {
+                    item.id = generateId();
+                }
+            });
+        }
+
+        function generateId() {
+            let id = Math.random().toString(16).slice(2);
+            return id;
+        };
+    </script>
+}

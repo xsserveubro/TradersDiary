@@ -1,0 +1,102 @@
+﻿@model PaginatedList<TradersDiary.Models.Deal>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Добавить сделку.</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Дата и время начала
+            </th>
+            <th>
+                Экспирация
+            </th>
+            <th>
+                Дата и время закрытия
+            </th>
+            <th>
+                Стоимость сделки
+            </th>
+            <th>
+                Направление
+            </th>
+            <th>
+                Итог
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OpeningDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Expiration)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClosingDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Direction)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Result)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisable = !Model.HasPreviousPage ? "disable" : "";
+    var nextDisable = !Model.HasNextPage ? "disable" : "";
+}
+
+<div class="container">
+    <div class="row">
+        <nav>
+            <ul class="pagination justify-content-evenly">
+                <li class="page-item">
+                    <a asp-action="Index"
+                       asp-route-PageNumber="@(Model.PageIndex-1)"
+                       class="page-link text-black @nextDisable">
+                        Назад
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link text-black" href="">1</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link text-black" href="">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link text-black" href="">3</a>
+                </li>
+                <li class="page-item">
+                    <a asp-action="Index"
+                       asp-route-PageNumber="@(Model.PageIndex+1)"
+                       class="page-link text-black @prevDisable">
+                        Вперёд
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
