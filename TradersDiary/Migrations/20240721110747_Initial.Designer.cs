@@ -12,26 +12,26 @@ using TradersDiary.Data;
 namespace TradersDiary.Migrations
 {
     [DbContext(typeof(TradersDiaryContext))]
-    [Migration("20240619070848_EditDeal")]
-    partial class EditDeal
+    [Migration("20240721110747_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TradersDiary.Models.Deal", b =>
+            modelBuilder.Entity("TradersDiary.Models.DealBO", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ClosingDate")
+                    b.Property<DateTime?>("ClosingDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Direction")
@@ -51,7 +51,45 @@ namespace TradersDiary.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Deal");
+                    b.ToTable("DealBO");
+                });
+
+            modelBuilder.Entity("TradersDiary.Models.DealForex", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ClosingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("OpeningDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Profit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("StopLoss")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Symbol")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("TakeProfit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Volume")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DealForex");
                 });
 #pragma warning restore 612, 618
         }

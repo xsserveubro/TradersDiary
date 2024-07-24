@@ -1,40 +1,47 @@
-﻿@model PaginatedList<TradersDiary.Models.Deal>
+﻿@model TradersDiary.Models.Deals
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Истории сделок.</h1>
 
-<p>
-    <a asp-action="Create">Добавить сделку.</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Дата и время начала
-            </th>
-            <th>
-                Экспирация
-            </th>
-            <th>
-                Дата и время закрытия
-            </th>
-            <th>
-                Стоимость сделки
-            </th>
-            <th>
-                Направление
-            </th>
-            <th>
-                Итог
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model) {
+<div class="container justify-content-around">
+    <button type="button" id="binary-btn" class="btn btn-dark" onclick="switchTab(event)">Сделки бинарных опционов</button>
+    <button type="button" id="forex-btn" class="btn btn-dark" onclick="switchTab(event)">Forex сделки</button>
+</div>
+<div style="padding-top:10px;" class="container active" id="binary-history">
+    <p>
+        <button type="button" class="btn btn-dark">
+            <a asp-action="CreateBo" style="text-decoration:none; color:white">Добавить сделку</a>
+        </button>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Дата и время начала
+                </th>
+                <th>
+                    Экспирация
+                </th>
+                <th>
+                    Дата и время закрытия
+                </th>
+                <th>
+                    Стоимость сделки
+                </th>
+                <th>
+                    Направление
+                </th>
+                <th>
+                    Итог
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.BinaryOptDeal) {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.OpeningDate)
@@ -55,48 +62,194 @@
                         @Html.DisplayFor(modelItem => item.Result)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <a asp-action="EditBo" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="DetailsBo" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="DeleteBo" asp-route-id="@item.Id">Delete</a>
                     </td>
                 </tr>
-        }
-    </tbody>
-</table>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevBoDisable = !Model.BinaryOptDeal.HasPreviousPage ? "disable" : "";
+        var nextBoDisable = !Model.BinaryOptDeal.HasNextPage ? "disable" : "";
+    }
 
-@{
-    var prevDisable = !Model.HasPreviousPage ? "disable" : "";
-    var nextDisable = !Model.HasNextPage ? "disable" : "";
-}
-
-<div class="container">
-    <div class="row">
-        <nav>
-            <ul class="pagination justify-content-evenly">
-                <li class="page-item">
-                    <a asp-action="Index"
-                       asp-route-PageNumber="@(Model.PageIndex-1)"
-                       class="page-link text-black @nextDisable">
-                        Назад
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link text-black" href="">1</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link text-black" href="">2</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link text-black" href="">3</a>
-                </li>
-                <li class="page-item">
-                    <a asp-action="Index"
-                       asp-route-PageNumber="@(Model.PageIndex+1)"
-                       class="page-link text-black @prevDisable">
-                        Вперёд
-                    </a>
-                </li>
-            </ul>
-        </nav>
+    <div class="container">
+        <div class="row">
+            <nav>
+                <ul class="pagination justify-content-evenly">
+                    <li class="page-item">
+                        <a asp-action="Index"
+                           asp-route-PageNumber="@(Model.BinaryOptDeal.PageIndex-1)"
+                           asp-route-CurrentHistory=0
+                           class="page-link text-black @nextBoDisable">
+                            Назад
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="Index"
+                           asp-route-PageNumber="@(Model.BinaryOptDeal.PageIndex+1)"
+                           asp-route-CurrentHistory=0
+                           class="page-link text-black @prevBoDisable">
+                            Вперёд
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
+<div style="margin-top:10px" class="container inactive" id="forex-history">
+    <p>
+        <button type="button" class="btn btn-dark">
+            <a asp-action="CreateForex" style="text-decoration:none; color:white">Добавить сделку</a>
+        </button>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Наименование
+                </th>
+                <th>
+                    Время открытия сделки
+                </th>
+                <th>
+                    Время закрытия сделки
+                </th>
+                <th>
+                    Цена
+                </th>
+                <th>
+                    Тип
+                </th>
+                <th>
+                    Объём
+                </th>
+                <th>
+                    S/L
+                </th>
+                <th>
+                    T/P
+                </th>
+                <th>
+                    Профит
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model.ForexDeal) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Symbol);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OpeningDate);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClosingDate);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Volume);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StopLoss);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TakeProfit);
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Profit);
+                    </td>
+                    <td>
+                        <a asp-action="EditForex" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="DetailsForex" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="DeleteForex" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevForexDisable = !Model.ForexDeal.HasPreviousPage ? "disable" : "";
+        var nextForexDisable = !Model.ForexDeal.HasNextPage ? "disable" : "";
+    }
+
+    <div class="container">
+        <div class="row">
+            <nav>
+                <ul class="pagination justify-content-evenly">
+                    <li class="page-item">
+                        <a asp-action="Index"
+                           asp-route-PageNumber="@(Model.ForexDeal.PageIndex-1)"
+                           asp-route-currentHistory=1
+                           class="page-link text-black @nextForexDisable">
+                            Назад
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-black" href="">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a asp-action="Index"
+                           asp-route-PageNumber="@(Model.ForexDeal.PageIndex+1)"
+                           asp-route-currentHistory=1
+                           class="page-link text-black @prevForexDisable">
+                            Вперёд
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const bHistory = document.getElementById('binary-history');
+        const fHistory = document.getElementById('forex-history');
+
+        if (@Model.CurrentHistory == 0) {
+            bHistory.style.display = 'block';
+            fHistory.style.display = 'none';
+        } else {
+            fHistory.style.display = 'block';
+            bHistory.style.display = 'none';
+        }
+
+        function switchTab(event) {
+            const tab = event.target.id;
+
+            if (tab === 'binary-btn') {
+                bHistory.style.display = 'block';
+                fHistory.style.display = 'none';
+            } else if (tab === 'forex-btn') {
+                fHistory.style.display = 'block';
+                bHistory.style.display = 'none';
+            }
+        }
+    </script>
+}

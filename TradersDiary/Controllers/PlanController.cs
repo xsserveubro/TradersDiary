@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TradersDiary.EditAreaContent;
 
 namespace TradersDiary.Controllers
 {
@@ -6,7 +7,6 @@ namespace TradersDiary.Controllers
     {
         public IActionResult Index()
         {
-            UpdateEditableArea();
             return View();
         }
 
@@ -15,10 +15,15 @@ namespace TradersDiary.Controllers
             this.View().ViewData["contenteditable"] = "Hello Kitty's";
         }
 
+        [HttpPost]
+        public JsonResult SaveData(AreaObject areaObject)
+        {
+            Console.WriteLine("dsfa");
+            return Json("God! job.");
+        }
+
         public void TestUpdateEditableArea()
         {
-            // выгружаются данные из БД
-            // добавляются в View.ContentEditable
         }
     }
 }

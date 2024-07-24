@@ -1,64 +1,186 @@
 ﻿<div class="bth-group" role="group" style="margin:10px" aria-label="Basic example">
     <button type="button" class="btn btn-secondary">Вставить картинку</button>
-    <button type="button" class="btn btn-secondary">Увеличить шрифт</button>
-    <button type="button" class="btn btn-secondary">Уменьшить шрифт</button>
-    <button type="button" class="btn btn-secondary">Заголовок 1</button>
-    <button type="button" class="btn btn-secondary">Заголовок 2</button>
-    <button type="button" class="btn btn-secondary">Заголовок 3</button>
-    <button type="button" class="btn btn-secondary">Жирный</button>
-    <button type="button" class="btn btn-secondary">Курсив</button>
+    <button onclick="increaseFont()" type="button" class="btn btn-secondary">Увеличить шрифт</button>
+    <button onclick="reduceFont()" type="button" class="btn btn-secondary">Уменьшить шрифт</button>
+    <button onclick="createHeader1()" type="button" class="btn btn-secondary">Заголовок 1</button>
+    <button onclick="createHeader2()" type="button" class="btn btn-secondary">Заголовок 2</button>
+    <button onclick="createHeader3()" type="button" class="btn btn-secondary">Заголовок 3</button>
+    <button onclick="fontBold()" type="button" class="btn btn-secondary">Жирный</button>
+    <button onclick="fontItalics()" type="button" class="btn btn-secondary">Курсив</button>
 </div>
 
-<div id="EditorArea" class="border" style="height:100vw; overflow-y:scroll; padding:10px" contenteditable="true">
-    @ViewData["contenteditable"]
+<div id="EditorArea" class="border" contenteditable="true" style="height:100vw;
+                                                                  overflow-y:scroll; 
+                                                                  padding:10px; 
+                                                                  font-size:16px;
+                                                                  background-color: #273738;
+                                                                  color: antiquewhite;">
+<div></div>
 </div>
 
 @section Scripts {
     <script>
+        let editor = document.getElementById("EditorArea");
+
         if (window.jQuery) {
             console.log('jQuery is correct');
         }
 
         window.onload = function () {
-            inactivityTime();
+            document.getElementById("EditorArea").addEventListener('keypress', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    editor.innerText += '\n\n';
+                    //createNewElement();
+                    //setIdLastElement();
+                    //wrapLastElement();
+                };
+            });
         };
 
-        let editor = document.getElementById("EditorArea");
+        function createNewElement() {
+            let newElement = document.createElement("div");
+            let br = document.createElement("br");
+            newElement.id = generateId();
+            $('.' + newElement.id).wrap('<div id="dsafsdf"></div>');
+            document.getElementById("EditorArea").appendChild(br);
 
-        var inactivityTime = function () {
-            var time;
-            window.onload = resetTimer;
+            let items = [].slice.call($('.EditorArea').children);
+            console.log(items[items.length - 1]);
+            //document.getElementById("EditorArea").appendChild(newElement);
+        }
 
-            editor.onmouseover = resetTimer;
-            editor.onkeydown = resetTimer;
+        function setIdLastElement() {
+            let items = [].slice.call(document.getElementById('EditorArea').children);
+            //console.log((items[items.length - 1]).innerText);
+            items[items.length - 1].id = generateId();
+        }
 
-            function parseElements() {
-                console.log("elements parsing");
-                setIdNewElements();
-                let items = [].slice.call(document.getElementById('EditorArea').children);
-                let json = JSON.stringify(items);
+        function wrapLastElement() {
+            //let items = [].slice.call($('.EditorArea').children);
+            // let items = [].slice.call(document.getElementById('EditorArea').children);
+            // console.log(items[items.length - 1].innerText);
+            // console.log(editor.innerText);
+            // editor.innerText.wrap('<div id="dsafsdf"></div>');
 
-                console.log(json);
-            };
+            // let range = window.getSelection().getRangeAt(0);
+            // let aux = document.createElement("div");
+            // aux.appendChild(range.cloneContents());
+            // console.log(aux.innerText);
 
-            function resetTimer() {
-                clearTimeout(time);
-                time = setTimeout(parseElements, 3000)
-            };
-        };
+            
+        }
 
         function setIdNewElements() {
+            console.log('пытаюсь установить id');
             let items = [].slice.call(document.getElementById('EditorArea').children);
             items.forEach((item) => {
                 if (!item.id) {
                     item.id = generateId();
+                    item.style.fontSize = "16px";
                 }
             });
         }
 
         function generateId() {
             let id = Math.random().toString(16).slice(2);
+            console.log("я отработал новый id: "+ id)
             return id;
         };
+
+        // Кнопки
+
+        function increaseFont() {
+            changeFontSize(2);
+        }
+
+        function reduceFont() {
+            changeFontSize(-2);
+        }
+
+        function changeFontSize(step) {
+            let selectedId = window.getSelection().baseNode.parentNode.id;
+            if (selectedId == "EditorArea") return;
+
+            let fontSize = parseFloat(document.getElementById(selectedId).style.fontSize);
+
+            if (step < 0 && fontSize <= 12 ||
+                step > 0 && fontSize >= 42) return;
+
+            document.getElementById(selectedId).style.fontSize = fontSize + step + 'px';
+        }
+
+        function createHeader1() {
+            createHeader(42);
+        }
+
+        function createHeader2() {
+            createHeader(30);
+        }
+
+        function createHeader3() {
+            createHeader(18);
+        }
+
+        function createHeader(fontSize) {
+            if (window.getSelection) {
+                let selectedId = window.getSelection().baseNode.parentNode.id;
+                if (selectedId == "EditorArea") return;
+
+                document.getElementById(selectedId).style.fontSize = fontSize+'px';
+                document.getElementById(selectedId).style.fontWeight = 'bold';
+            }
+        }
+
+        function fontBold() {
+            let selectedId = window.getSelection().baseNode.parentNode.id;
+            if (selectedId == "EditorArea") return;
+
+            let element = document.getElementById(selectedId);
+            let fontWeight = element.style.fontWeight;
+
+            if (fontWeight == 'bold') {
+                element.style.fontWeight = 'normal';
+            } else {
+                element.style.fontWeight = 'bold';
+            }
+        }
+
+        function fontItalics() {
+            let selectedId = window.getSelection().baseNode.parentNode.id;
+            if (selectedId == "EditorArea") return;
+
+            let element = document.getElementById(selectedId);
+            let fontStyle = element.style.fontWeight;
+
+            if (fontStyle == 'italic') {
+                element.style.fontStyle = 'normal';
+            } else {
+                element.style.fontStyle = 'italic';
+            }
+        }
+
+        // -- Кнопки
+
+        function isEditorObject(selectedNode) {
+            let parentNode = selectedNode.parentNode;
+            while (parentNode != null) {
+                if (parentNode.id == "EditorArea") {
+                    return true;
+                }
+                parentNode = parentNode.parentNode;
+            }
+            return false;
+        }
+
+        console.log('Началась проверка на текущую историю')
+        if (Model.CurrentHistory === 0) {
+            bHistory.style.display = 'block';
+            fHistory.style.display = 'none';
+        }
+        else {
+            fHistory.style.display = 'block';
+            bHistory.style.display = 'none';
+        }
     </script>
 }
