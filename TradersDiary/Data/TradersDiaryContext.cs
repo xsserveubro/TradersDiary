@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TradersDiary.Models;
 
 namespace TradersDiary.Data
@@ -14,6 +10,7 @@ namespace TradersDiary.Data
         {
         }
 
-        public DbSet<TradersDiary.Models.Deal> Deal { get; set; } = default!;
+        public DbSet<DealBO> DealBO { get; set; } = default!;
+        public DbSet<DealForex> DealForex { get; set; } = default!;
     }
 }

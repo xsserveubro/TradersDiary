@@ -15,44 +15,76 @@ namespace TradersDiary.Controllers
         }
 
         // GET: Deals
-        public async Task<IActionResult> Index(int? pageNumber = 1)
+        public async Task<IActionResult> Index(int currentHistory, int? pageNumber = 1)
         {
-            var deals = await _context.Deal.ToListAsync();
+            int pageSize = 3;
 
-            int pageSize = 12;
-            return View(await PaginatedList<Deal>.CreateAsync(deals, pageNumber ?? 1, pageSize));
+            var deals = new Deals();
+            deals.CurrentHistory = currentHistory;
+            deals.BinaryOptDeal = await (PaginatedList<DealBO>.CreateAsync(
+                await _context.DealBO.ToListAsync(), pageNumber ?? 1, pageSize));
+            deals.ForexDeal = await( PaginatedList<DealForex>.CreateAsync(
+                await _context.DealForex.ToListAsync(), pageNumber ?? 1, pageSize));
+
+            return View(deals);
         }
 
-        // GET: Deals/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: Deals/DetailsBo/5
+        public async Task<IActionResult> DetailsBo(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var deal = await _context.Deal
+            object? deal = await _context.DealBO
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (deal == null)
             {
-                return NotFound();
+                return View();
             }
 
             return View(deal);
         }
 
-        // GET: Deals/Create
-        public IActionResult Create()
+        // GET: Deals/DetailsForex/5
+        public async Task<IActionResult> DetailsForex(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            object? deal = await _context.DealForex
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (deal == null)
+            {
+                return View();
+            }
+
+            return View(deal);
+        }
+
+        // GET: Deals/CreateBo
+        public IActionResult CreateBo()
         {
             return View();
         }
 
-        // POST: Deals/Create
+        // GET: Deals/CreateForex
+        public IActionResult CreateForex()
+        {
+            return View();
+        }
+
+        // POST: Deals/CreateBo
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,OpeningDate,Expiration,ClosingDate,Price,Direction,Result")] Deal deal)
+        public async Task<IActionResult> CreateBo([Bind("Id,OpeningDate,Expiration,ClosingDate,Price,Direction,Result")] DealBO deal)
         {
             if (ModelState.IsValid)
             {
@@ -65,15 +97,31 @@ namespace TradersDiary.Controllers
             return View(deal);
         }
 
-        // GET: Deals/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        // POST: Deals/CreateForex
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateForex(
+            [Bind("Id,Symbol,OpeningDate,ClosingDate,Price,Type,Volume,StopLoss,TakeProfit,Profit")] DealForex deal)
+        {
+            if (ModelState.IsValid)
+            {
+                deal.Id = Guid.NewGuid();
+                _context.Add(deal);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(deal);
+        }
+
+        // GET: Deals/EditBo/5
+        public async Task<IActionResult> EditBo(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var deal = await _context.Deal.FindAsync(id);
+            var deal = await _context.DealBO.FindAsync(id);
             if (deal == null)
             {
                 return NotFound();
@@ -81,12 +129,29 @@ namespace TradersDiary.Controllers
             return View(deal);
         }
 
-        // POST: Deals/Edit/5
+        // GET: Deals/EditForex/5
+        public async Task<IActionResult> EditForex(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var deal = await _context.DealForex.FindAsync(id);
+            if (deal == null)
+            {
+                return NotFound();
+            }
+            return View(deal);
+        }
+
+        // POST: Deals/EditBo/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,OpeningDate,Price,Direction,Result")] Deal deal)
+        public async Task<IActionResult> EditBo(Guid id,
+            [Bind("Id,OpeningDate,ClosingDate,Price,Expiration,Direction,Result")] DealBO deal)
         {
             if (id != deal.Id)
             {
@@ -97,12 +162,12 @@ namespace TradersDiary.Controllers
             {
                 try
                 {
-                    _context.Update(deal);
+                    _context.DealBO.Update(deal);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DealExists(deal.Id))
+                    if (!DealBoExists(deal.Id))
                     {
                         return NotFound();
                     }
@@ -116,15 +181,51 @@ namespace TradersDiary.Controllers
             return View(deal);
         }
 
-        // GET: Deals/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        // POST: Deals/EditForex/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditForex(Guid id,
+            [Bind("Id,OpeningDate,ClosingDate,Price,Symbol,Type,Volume,StopLose,TakeProfit,Profit")] DealForex deal)
+        {
+            if (id != deal.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.DealForex.Update(deal);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DealForexExists(deal.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(deal);
+        }
+
+        // GET: Deals/DeleteBo/5
+        public async Task<IActionResult> DeleteBo(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var deal = await _context.Deal
+            var deal = await _context.DealBO
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (deal == null)
             {
@@ -134,24 +235,62 @@ namespace TradersDiary.Controllers
             return View(deal);
         }
 
-        // POST: Deals/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Deals/DeleteBo/5
+        [HttpPost, ActionName("DeleteBo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteBoConfirmed(Guid id)
         {
-            var deal = await _context.Deal.FindAsync(id);
+            var deal = await _context.DealBO.FindAsync(id);
             if (deal != null)
             {
-                _context.Deal.Remove(deal);
+                _context.DealBO.Remove(deal);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DealExists(Guid id)
+        // GET: Deals/DeleteForex/5
+        public async Task<IActionResult> DeleteForex(Guid? id)
         {
-            return _context.Deal.Any(e => e.Id == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var deal = await _context.DealForex
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (deal == null)
+            {
+                return NotFound();
+            }
+
+            return View(deal);
+        }
+
+        // POST: Deals/DeleteForex/5
+        [HttpPost, ActionName("DeleteForex")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteForexConfirmed(Guid id)
+        {
+            var deal = await _context.DealForex.FindAsync(id);
+            if (deal != null)
+            {
+                _context.DealForex.Remove(deal);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool DealBoExists(Guid id)
+        {
+            return _context.DealBO.Any(e => e.Id == id);
+        }
+
+        private bool DealForexExists(Guid id)
+        {
+            return _context.DealBO.Any(e => e.Id == id);
         }
     }
 }

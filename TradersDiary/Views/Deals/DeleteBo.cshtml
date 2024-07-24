@@ -1,4 +1,4 @@
-﻿@model TradersDiary.Models.Deal
+﻿@model TradersDiary.Models.DealBO
 
 @{
     ViewData["Title"] = "Delete";
@@ -37,7 +37,7 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="DeleteBo">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Удалить" class="btn btn-danger" /> |
         <a asp-action="Index">Назад.</a>
